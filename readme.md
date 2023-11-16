@@ -372,3 +372,187 @@ app.listen(port, () => {
 ```
 
 When you visit `/users/123?admin=true`, `req.params.id` will be `'123'` and `req.query.admin` will be `'true'`.
+
+video-8: middleware.
+
+In Express, you can access parameters (`params`) and query parameters (`query`) from the request object (`req`) in your route handlers. Here's a brief overview of how to use them:
+
+### Parameters (`req.params`):
+
+Parameters are part of the URL path and are typically used to capture values dynamically. For example, in the route pattern `/users/:id`, `:id` is a parameter, and you can access it using `req.params.id`.
+
+```javascript
+const express = require("express");
+const app = express();
+const port = 3000;
+
+// Example route with a parameter
+app.get("/users/:id", (req, res) => {
+  const userId = req.params.id;
+  res.send(`User ID: ${userId}`);
+});
+
+app.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
+});
+```
+
+When you visit `/users/123`, `req.params.id` will be `'123'`.
+
+### Query Parameters (`req.query`):
+
+Query parameters are part of the URL after the `?` character and are typically used for optional parameters or filtering. For example, in the URL `/search?query=node&category=programming`, you can access `query` and `category` using `req.query.query` and `req.query.category`.
+
+```javascript
+const express = require("express");
+const app = express();
+const port = 3000;
+
+// Example route with query parameters
+app.get("/search", (req, res) => {
+  const query = req.query.query;
+  const category = req.query.category;
+  res.send(`Search Query: ${query}, Category: ${category}`);
+});
+
+app.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
+});
+```
+
+When you visit `/search?query=node&category=programming`, `req.query.query` will be `'node'` and `req.query.category` will be `'programming'`.
+
+### Combining Parameters and Query Parameters:
+
+You can use both parameters and query parameters in the same route.
+
+```javascript
+const express = require("express");
+const app = express();
+const port = 3000;
+
+// Example route with both parameters and query parameters
+app.get("/users/:id", (req, res) => {
+  const userId = req.params.id;
+  const isAdmin = req.query.admin === "true";
+  res.send(`User ID: ${userId}, isAdmin: ${isAdmin}`);
+});
+
+app.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
+});
+```
+
+When you visit `/users/123?admin=true`, `req.params.id` will be `'123'` and `req.query.admin` will be `'true'`.
+
+Video-9: Routing in express.js
+
+In Express.js, a router is a middleware that allows you to group route handlers for a particular part of your site together, and it can be thought of as a mini-application within your main application. Routers provide a way to modularize and organize your route-handling code.
+
+Here's a brief overview:
+
+1. **Creating a Router:**
+   You can create a router using `express.Router()`:
+
+   ```javascript
+   const express = require("express");
+   const router = express.Router();
+   ```
+
+2. **Defining Routes:**
+   You can define routes on the router object, similar to how you define routes on the main Express application:
+
+   ```javascript
+   router.get("/", (req, res) => {
+     res.send("This is the home page");
+   });
+
+   router.get("/about", (req, res) => {
+     res.send("About us");
+   });
+   ```
+
+3. **Using the Router in the Main Application:**
+   Once you've defined routes on your router, you can use the router as middleware in your main Express application:
+
+   ```javascript
+   const express = require("express");
+   const app = express();
+
+   // Using the router
+   app.use("/myRoute", router);
+
+   // Other middleware and route handlers
+   ```
+
+   This means that any routes defined on the router will be relative to the path you specify when you use the router.
+
+4. **Modularization:**
+   Routers are especially useful for modularizing your code. You can create separate routers for different parts of your application (e.g., user routes, product routes) and then use them in your main application.
+
+   ```javascript
+   const userRouter = require("./routes/user");
+   const productRouter = require("./routes/product");
+
+   app.use("/users", userRouter);
+   app.use("/products", productRouter);
+   ```
+
+This makes your code more organized and easier to maintain, as different parts of your application logic are encapsulated in separate router modules.
+
+Video-10: Error handling.
+
+1.Use try catch:
+
+```js
+//API and handling errors.
+app.get("/", (req: Request, res: Response, next: NextFunction) => {
+  try {
+    console.log(something);
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      message: "something went wrong",
+    });
+  }
+});
+```
+
+2. Handling errors with global error handler:
+
+When your main api take a next function as parameter. call it in catch block give it's parameter the error.
+
+```js
+//API and handling errors.
+app.get("/", (req: Request, res: Response, next: NextFunction) => {
+  try {
+    console.log(something);
+  } catch (error) {
+    next(error);
+  }
+});
+```
+
+```js
+//Global eror handler.
+app.use("/", (error: any, req: Request, res: Response, next: NextFunction) => {
+  if (error) {
+    res.status(400).json({
+      success: false,
+      message: "Something went wrong",
+    });
+  }
+});
+```
+
+3. Handling all unexpected routes.
+
+```js
+//Handling all unexpected routes.
+app.all("*", (req: Request, res: Response) => {
+  res.status(200).json({
+    success: false,
+    message: "Route not found",
+  });
+});
+```
